@@ -1,0 +1,53 @@
+# ============================================================
+# .gitignore — Search Typeahead Project
+# ============================================================
+
+# --- Dependencies ---
+node_modules/
+.pnp
+.pnp.js
+
+# --- Environment files (NEVER commit real .env files) ---
+.env
+.env.local
+.env.*.local
+# Keep examples
+!.env.example
+
+# --- Build outputs ---
+dist/
+build/
+
+# --- Logs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# --- Docker volumes / temp data ---
+postgres_data/
+
+# --- OS files ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# --- Editor directories and files ---
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# --- Test coverage ---
+coverage/
+
+# --- meri alag cheeze ---
+others/

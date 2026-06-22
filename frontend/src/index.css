@@ -1,0 +1,133 @@
+/* ============================================================
+   index.css — Global Design System
+   Search Typeahead — Premium Dark Mode UI
+   ============================================================ */
+
+/* Google Fonts are loaded via index.html link tag */
+
+/* ---- CSS Custom Properties (Design Tokens) ---- */
+:root {
+  /* Colors — Deep dark palette with vivid accent */
+  --color-bg:           #0a0a0f;
+  --color-bg-elevated:  #111118;
+  --color-bg-card:      #16161f;
+  --color-bg-hover:     #1c1c28;
+  --color-surface:      #1e1e2e;
+  --color-border:       #2a2a3d;
+  --color-border-focus: #5c5cff;
+
+  /* Accent — Electric indigo/purple gradient */
+  --color-accent-1:     #6366f1;
+  --color-accent-2:     #8b5cf6;
+  --color-accent-glow:  rgba(99, 102, 241, 0.25);
+
+  /* Text */
+  --color-text-primary:   #f0f0ff;
+  --color-text-secondary: #9999bb;
+  --color-text-muted:     #555577;
+  --color-text-accent:    #a5b4fc;
+
+  /* Status */
+  --color-success:  #34d399;
+  --color-warning:  #fbbf24;
+  --color-error:    #f87171;
+  --color-trending: #f97316;
+
+  /* Gradients */
+  --gradient-accent:  linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --gradient-glow:    radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.15) 0%, transparent 70%);
+  --gradient-card:    linear-gradient(145deg, #16161f 0%, #111118 100%);
+
+  /* Typography */
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-size-xs:  0.75rem;
+  --font-size-sm:  0.875rem;
+  --font-size-md:  1rem;
+  --font-size-lg:  1.125rem;
+  --font-size-xl:  1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+  --font-size-4xl: 2.75rem;
+
+  /* Spacing */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* Border radius */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md:  0 4px 16px rgba(0,0,0,0.5);
+  --shadow-lg:  0 8px 32px rgba(0,0,0,0.6);
+  --shadow-glow: 0 0 32px rgba(99,102,241,0.3);
+  --shadow-card: 0 2px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04);
+
+  /* Transitions */
+  --transition-fast:   150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:   400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ---- Reset ---- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Subtle grid background */
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: var(--radius-full); }
+::-webkit-scrollbar-thumb:hover { background: var(--color-accent-1); }
+
+/* ---- Focus visible ring ---- */
+:focus-visible {
+  outline: 2px solid var(--color-accent-1);
+  outline-offset: 2px;
+}
+
+/* ---- Selection ---- */
+::selection {
+  background: var(--color-accent-glow);
+  color: var(--color-text-primary);
+}

@@ -1,0 +1,155 @@
+# ============================================================
+# docker-compose.yml — Search Typeahead System
+# ============================================================
+#
+# Services:
+#   postgres       — PostgreSQL 16 (source-of-truth DB)
+#   redis-node-1   — Redis 7 node 1 (port 6379)
+#   redis-node-2   — Redis 7 node 2 (port 6380)
+#   redis-node-3   — Redis 7 node 3 (port 6381)
+#   backend        — Node.js + Express API (port 3001)
+#   frontend       — React + Vite (served via nginx, port 5173)
+#
+# Run: docker compose up --build
+# Ingest dataset (after services are up):
+#   docker compose exec backend node scripts/ingest.js
+# ============================================================
+
+services:
+
+  # ----------------------------------------------------------
+  # PostgreSQL — Source of Truth
+  # ----------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: typeahead-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: typeahead
+      POSTGRES_PASSWORD: typeahead
+      POSTGRES_DB: typeahead
+    ports:
+      - "5432:5432"
+    volumes:
+      # Persist data across restarts
+      - postgres_data:/var/lib/postgresql/data
+      # Run schema init SQL on first startup
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U typeahead -d typeahead"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ----------------------------------------------------------
+  # Redis Node 1
+  # ----------------------------------------------------------
+  redis-node-1:
+    image: redis:7-alpine
+    container_name: typeahead-redis-1
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --save "" --appendonly no
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ----------------------------------------------------------
+  # Redis Node 2
+  # ----------------------------------------------------------
+  redis-node-2:
+    image: redis:7-alpine
+    container_name: typeahead-redis-2
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    command: redis-server --save "" --appendonly no
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ----------------------------------------------------------
+  # Redis Node 3
+  # ----------------------------------------------------------
+  redis-node-3:
+    image: redis:7-alpine
+    container_name: typeahead-redis-3
+    restart: unless-stopped
+    ports:
+      - "6381:6379"
+    command: redis-server --save "" --appendonly no
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ----------------------------------------------------------
+  # Backend — Express API
+  # ----------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: typeahead-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      DATABASE_URL: postgres://typeahead:typeahead@postgres:5432/typeahead
+      # Comma-separated Redis node URLs (internal Docker network)
+      REDIS_NODES: redis://redis-node-1:6379,redis://redis-node-2:6379,redis://redis-node-3:6379
+      CACHE_TTL_SECONDS: 300
+      # Ranking mode: "basic" or "trending"
+      RANKING_MODE: basic
+      # Trending score: total_count + ALPHA * recent_count
+      TRENDING_ALPHA: 2.0
+      # Decay: recent_count = floor(recent_count * DECAY_FACTOR)
+      DECAY_FACTOR: 0.9
+      # Decay runs every DECAY_INTERVAL_MS milliseconds
+      DECAY_INTERVAL_MS: 60000
+      # Batch write settings
+      BATCH_SIZE: 50
+      BATCH_FLUSH_INTERVAL_MS: 5000
+      # Number of virtual nodes per real Redis node (consistent hashing)
+      VIRTUAL_NODES: 150
+      # Minimum prefix length to return suggestions
+      MIN_PREFIX_LENGTH: 3
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis-node-1:
+        condition: service_healthy
+      redis-node-2:
+        condition: service_healthy
+      redis-node-3:
+        condition: service_healthy
+    volumes:
+      # Mount dataset into the backend container for ingest script
+      - ./dataset:/app/dataset:ro
+
+  # ----------------------------------------------------------
+  # Frontend — React + Vite (built, served via nginx)
+  # ----------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: typeahead-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+# ----------------------------------------------------------
+# Named Volumes
+# ----------------------------------------------------------
+volumes:
+  postgres_data:
