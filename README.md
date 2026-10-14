@@ -1,6 +1,6 @@
 # 🔍 Search Typeahead System
 
-A production-ready Search Typeahead system built as an HLD (High-Level Design) assignment. Implements real distributed systems concepts: consistent hashing, batch writes, recency-aware trending, and a distributed Redis cache.
+A production-ready Search Typeahead system that implements real distributed systems concepts: consistent hashing, batch writes, recency-aware trending, and a distributed Redis cache.
 
 ---
 
